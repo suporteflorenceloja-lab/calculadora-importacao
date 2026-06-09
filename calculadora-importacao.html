@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Importação China → Brasil</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      padding: 24px;
+    }
+
+    h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #6b7280; margin-bottom: 24px; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    .card h2 {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #6b7280;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: #f3f4f6;
+      padding: 4px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      background: transparent;
+      color: #6b7280;
+      transition: all 0.15s;
+    }
+
+    .tab-btn.active {
+      background: #fff;
+      color: #1a1a2e;
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* Fields */
+    .field {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 11px;
+      gap: 10px;
+    }
+
+    .field label { font-size: 13px; color: #374151; flex: 1; }
+    .field .unit { font-size: 12px; color: #9ca3af; width: 36px; text-align: right; flex-shrink: 0; }
+
+    .field input {
+      width: 108px;
+      padding: 6px 10px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      text-align: right;
+      color: #1a1a2e;
+      transition: border-color 0.15s;
+      -moz-appearance: textfield;
+      flex-shrink: 0;
+    }
+
+    .field input::-webkit-outer-spin-button,
+    .field input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .field input:focus { outline: none; border-color: #6366f1; }
+
+    .computed {
+      width: 108px;
+      padding: 6px 10px;
+      border: 1.5px solid #e0e7ff;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: right;
+      color: #4f46e5;
+      background: #eef2ff;
+      flex-shrink: 0;
+    }
+
+    .divider { border: none; border-top: 1px dashed #e5e7eb; margin: 14px 0; }
+    .section-label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.05em; color: #9ca3af; margin-bottom: 10px; margin-top: 4px;
+    }
+
+    /* Tabela de simulação */
+    .sim-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .sim-table thead th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #9ca3af;
+      padding: 0 6px 10px 6px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .sim-table thead th:nth-child(3),
+    .sim-table thead th:nth-child(4),
+    .sim-table thead th:nth-child(5) { text-align: right; }
+
+    .sim-table tbody tr { border-bottom: 1px solid #f9fafb; }
+    .sim-table tbody tr:last-child { border-bottom: none; }
+
+    .sim-table tbody td { padding: 6px; vertical-align: middle; }
+
+    .sim-table input[type="text"] {
+      width: 100%;
+      padding: 5px 8px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 7px;
+      font-size: 13px;
+      color: #374151;
+    }
+
+    .sim-table input[type="number"] {
+      width: 100%;
+      padding: 5px 8px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 500;
+      text-align: right;
+      color: #1a1a2e;
+      -moz-appearance: textfield;
+    }
+
+    .sim-table input[type="number"]::-webkit-outer-spin-button,
+    .sim-table input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    .sim-table input[type="text"] { text-align: right; }
+
+    .sim-table input:focus { outline: none; border-color: #6366f1; }
+
+    .sim-table .calc-cell {
+      text-align: right;
+      font-weight: 600;
+      color: #4f46e5;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    .sim-table .calc-cell.gray { color: #6b7280; font-weight: 500; }
+
+    .btn-remove {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #d1d5db;
+      font-size: 16px;
+      padding: 2px 6px;
+      border-radius: 5px;
+      transition: color 0.15s, background 0.15s;
+      line-height: 1;
+    }
+
+    .btn-remove:hover { color: #ef4444; background: #fee2e2; }
+
+    .sim-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 2px solid #f3f4f6;
+    }
+
+    .btn-add {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: #eef2ff;
+      border: 1.5px solid #c7d2fe;
+      border-radius: 8px;
+      color: #4f46e5;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-add:hover { background: #e0e7ff; }
+
+    .sim-totals {
+      display: flex;
+      gap: 20px;
+    }
+
+    .sim-total-item { text-align: right; }
+    .sim-total-item .st-label { font-size: 11px; color: #9ca3af; font-weight: 500; }
+    .sim-total-item .st-value { font-size: 15px; font-weight: 700; color: #1a1a2e; }
+    .sim-total-item .st-value.accent { color: #4f46e5; }
+
+    /* Results */
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #f9fafb;
+      font-size: 13px;
+    }
+
+    .result-row:last-child { border-bottom: none; }
+    .result-row .label { color: #6b7280; }
+    .result-row .value { font-weight: 600; color: #1a1a2e; font-size: 14px; }
+    .result-row.hl .label { color: #374151; font-weight: 500; }
+    .result-row.hl .value { color: #dc2626; }
+
+    .result-row.total {
+      margin-top: 8px; padding-top: 12px;
+      border-top: 2px solid #e5e7eb; border-bottom: none;
+    }
+
+    .result-row.total .label { font-size: 14px; font-weight: 700; }
+    .result-row.total .value { font-size: 17px; font-weight: 800; color: #6366f1; }
+
+    .tag {
+      font-size: 10px; font-weight: 600;
+      padding: 2px 6px; border-radius: 4px; margin-left: 5px;
+    }
+
+    .tag.yellow { background: #fef3c7; color: #92400e; }
+    .tag.red    { background: #fee2e2; color: #991b1b; }
+    .tag.blue   { background: #dbeafe; color: #1e40af; }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .sbox {
+      background: #f8fafc;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .sbox .sl { font-size: 10px; color: #9ca3af; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px; }
+    .sbox .sv { font-size: 16px; font-weight: 800; color: #1a1a2e; }
+    .sbox.accent { background: #eef2ff; border-color: #c7d2fe; }
+    .sbox.accent .sv { color: #4f46e5; }
+    .sbox.green { background: #f0fdf4; border-color: #bbf7d0; }
+    .sbox.green .sv { color: #15803d; }
+
+    .conjunto-block {
+      background: #f0fdf4;
+      border: 1.5px solid #bbf7d0;
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .conjunto-block .cb-title {
+      font-size: 11px; font-weight: 700; color: #15803d;
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;
+    }
+
+    .cb-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 7px;
+    }
+
+    .cb-row:last-child { margin-bottom: 0; }
+    .cb-row .cb-label { color: #4b7c5e; }
+    .cb-row .cb-value { font-weight: 700; color: #15803d; font-size: 15px; }
+
+    .note {
+      font-size: 11px; color: #9ca3af; margin-top: 10px;
+      line-height: 1.5; padding: 10px; background: #fafafa;
+      border-radius: 8px; border-left: 3px solid #e5e7eb;
+    }
+
+    .note strong { color: #6b7280; }
+
+    .warning {
+      background: #fff7ed; border: 1.5px solid #fed7aa;
+      border-radius: 10px; padding: 12px 16px;
+      font-size: 12px; color: #92400e; margin-top: 16px; line-height: 1.6;
+    }
+
+    .warning strong { color: #7c2d12; }
+
+    .left-col { display: flex; flex-direction: column; gap: 16px; }
+    .right-col { display: flex; flex-direction: column; gap: 16px; }
+  </style>
+</head>
+<body>
+
+  <h1>Calculadora de Importação China → Brasil</h1>
+  <p class="subtitle">Importação formal (DI) · Simples Nacional · SC (ICMS 17%)</p>
+
+  <div class="layout">
+
+    <!-- ═══════════════ COLUNA ESQUERDA ═══════════════ -->
+    <div class="left-col">
+
+      <!-- ABAS -->
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(1)">Produto Único</button>
+        <button class="tab-btn" onclick="switchTab(2)">Simulação de Pedido</button>
+      </div>
+
+      <!-- ──── TAB 1: Produto Único ──── -->
+      <div id="tab1-content">
+        <div class="card">
+          <h2>Produto — Tecido</h2>
+
+          <p class="section-label">Você informa</p>
+          <div class="field">
+            <label>Custo por metro</label>
+            <input type="number" id="custo_metro" value="65" step="0.5" oninput="calc()">
+            <span class="unit">U$/m</span>
+          </div>
+          <div class="field">
+            <label>Metros a comprar</label>
+            <input type="number" id="metros_single" value="1000" step="10" oninput="calc()">
+            <span class="unit">m</span>
+          </div>
+
+          <hr class="divider">
+          <p class="section-label">Calculado automaticamente</p>
+
+          <div class="field">
+            <label>Valor do produto (FOB) <span class="tag blue">auto</span></label>
+            <div class="computed" id="c_fob">—</div>
+            <span class="unit">U$</span>
+          </div>
+          <div class="field">
+            <label>Peso estimado (47 m = 1 kg) <span class="tag blue">auto</span></label>
+            <div class="computed" id="c_peso">—</div>
+            <span class="unit">kg</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──── TAB 2: Simulação de Pedido ──── -->
+      <div id="tab2-content" style="display:none;">
+        <div class="card">
+          <h2>Simulação de Pedido</h2>
+
+          <table class="sim-table">
+            <thead>
+              <tr>
+                <th style="width:34%">Produto</th>
+                <th style="width:18%">Metros</th>
+                <th style="width:18%">U$/m</th>
+                <th style="width:16%">FOB</th>
+                <th style="width:10%">Peso</th>
+                <th style="width:4%"></th>
+              </tr>
+            </thead>
+            <tbody id="sim-tbody"></tbody>
+          </table>
+
+          <div class="sim-footer">
+            <button class="btn-add" onclick="addProduto()">＋ Adicionar produto</button>
+            <div class="sim-totals">
+              <div class="sim-total-item">
+                <div class="st-label">Total metros</div>
+                <div class="st-value" id="sim-total-metros">—</div>
+              </div>
+              <div class="sim-total-item">
+                <div class="st-label">FOB total</div>
+                <div class="st-value accent" id="sim-total-fob">—</div>
+              </div>
+              <div class="sim-total-item">
+                <div class="st-label">Peso total</div>
+                <div class="st-value" id="sim-total-peso">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──── COMPARTILHADO: Envio, Impostos, Operacional, Conjunto ──── -->
+      <div class="card">
+        <h2>Envio e Câmbio</h2>
+        <div class="field">
+          <label>Frete aéreo (por kg)</label>
+          <input type="number" id="frete_kg" value="5" step="0.5" oninput="calc()">
+          <span class="unit">U$/kg</span>
+        </div>
+        <div class="field">
+          <label>Taxa de seguro</label>
+          <input type="number" id="seguro" value="0.4" step="0.1" oninput="calc()">
+          <span class="unit">%</span>
+        </div>
+        <div class="field">
+          <label>Câmbio (R$/U$)</label>
+          <input type="number" id="cambio" value="5.10" step="0.05" oninput="calc()">
+          <span class="unit">R$</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Alíquotas de Impostos</h2>
+        <div class="field">
+          <label>Imposto de Importação (II) <span class="tag yellow">confirmar NCM</span></label>
+          <input type="number" id="ii" value="26" step="1" oninput="calc()">
+          <span class="unit">%</span>
+        </div>
+        <div class="field">
+          <label>IPI</label>
+          <input type="number" id="ipi" value="0" step="1" oninput="calc()">
+          <span class="unit">%</span>
+        </div>
+        <div class="field">
+          <label>PIS <span class="tag red">sem crédito SN</span></label>
+          <input type="number" id="pis" value="2.1" step="0.1" oninput="calc()">
+          <span class="unit">%</span>
+        </div>
+        <div class="field">
+          <label>COFINS <span class="tag red">sem crédito SN</span></label>
+          <input type="number" id="cofins" value="9.65" step="0.05" oninput="calc()">
+          <span class="unit">%</span>
+        </div>
+        <div class="field">
+          <label>ICMS/SC <span class="tag red">sem crédito SN</span></label>
+          <input type="number" id="icms" value="17" step="0.5" oninput="calc()">
+          <span class="unit">%</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Custos Operacionais</h2>
+        <div class="field">
+          <label>Despachante aduaneiro</label>
+          <input type="number" id="despachante" value="700" step="50" oninput="calc()">
+          <span class="unit">R$</span>
+        </div>
+        <div class="field">
+          <label>Taxas Siscomex</label>
+          <input type="number" id="siscomex" value="200" step="10" oninput="calc()">
+          <span class="unit">R$</span>
+        </div>
+        <div class="field">
+          <label>Agente de carga (forwarder)</label>
+          <input type="number" id="forwarder" value="400" step="50" oninput="calc()">
+          <span class="unit">R$</span>
+        </div>
+        <div class="field">
+          <label>Frete interno (Navegantes → Brusque)</label>
+          <input type="number" id="frete_interno" value="150" step="10" oninput="calc()">
+          <span class="unit">R$</span>
+        </div>
+        <div class="field">
+          <label>Outros</label>
+          <input type="number" id="outros" value="0" step="10" oninput="calc()">
+          <span class="unit">R$</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Produção — Conjunto</h2>
+        <div class="field">
+          <label>Metros por conjunto completo</label>
+          <input type="number" id="metros_conjunto" value="1.5" step="0.1" oninput="calc()">
+          <span class="unit">m</span>
+        </div>
+        <p class="note">Inclui sutiã + calcinha. Altere conforme seu molde específico.</p>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════ COLUNA DIREITA: Resultados ═══════════════ -->
+    <div class="right-col">
+
+      <div class="card">
+        <h2>Base de Cálculo (CIF)</h2>
+        <div class="result-row">
+          <span class="label">Metros totais</span>
+          <span class="value" id="r_metros">—</span>
+        </div>
+        <div class="result-row">
+          <span class="label">Produto (FOB)</span>
+          <span class="value" id="r_fob">—</span>
+        </div>
+        <div class="result-row">
+          <span class="label">Peso estimado</span>
+          <span class="value" id="r_peso">—</span>
+        </div>
+        <div class="result-row">
+          <span class="label">Frete internacional</span>
+          <span class="value" id="r_frete">—</span>
+        </div>
+        <div class="result-row">
+          <span class="label">Seguro</span>
+          <span class="value" id="r_seguro">—</span>
+        </div>
+        <div class="result-row hl">
+          <span class="label">CIF (U$)</span>
+          <span class="value" id="r_cif_usd">—</span>
+        </div>
+        <div class="result-row hl">
+          <span class="label">CIF (R$)</span>
+          <span class="value" id="r_cif_brl">—</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Impostos na Importação</h2>
+        <div class="result-row">
+          <span class="label">Imposto de Importação (II)</span>
+          <span class="value" id="r_ii">—</span>
+        </div>
+        <div class="result-row">
+          <span class="label">IPI</span>
+          <span class="value" id="r_ipi">—</span>
+        </div>
+        <div class="result-row">
+          <span class="label">PIS</span>
+          <span class="value" id="r_pis">—</span>
+        </div>
+        <div class="result-row">
+          <span class="label">COFINS</span>
+          <span class="value" id="r_cofins">—</span>
+        </div>
+        <div class="result-row">
+          <span class="label">ICMS/SC (por dentro)</span>
+          <span class="value" id="r_icms">—</span>
+        </div>
+        <div class="result-row total">
+          <span class="label">Total impostos</span>
+          <span class="value" id="r_impostos_total">—</span>
+        </div>
+        <p class="note">
+          <strong>Simples Nacional:</strong> PIS, COFINS e ICMS não geram crédito. São 100% custo do produto.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Custo Total Desembarcado</h2>
+        <div class="result-row">
+          <span class="label">Produto (R$)</span>
+          <span class="value" id="r_prod_brl">—</span>
+        </div>
+        <div class="result-row">
+          <span class="label">Frete + seguro (R$)</span>
+          <span class="value" id="r_frete_brl">—</span>
+        </div>
+        <div class="result-row hl">
+          <span class="label">Total impostos</span>
+          <span class="value" id="r_impostos2">—</span>
+        </div>
+        <div class="result-row">
+          <span class="label">Custos operacionais</span>
+          <span class="value" id="r_operacional">—</span>
+        </div>
+        <div class="result-row total">
+          <span class="label">TOTAL DESEMBARCADO</span>
+          <span class="value" id="r_total">—</span>
+        </div>
+      </div>
+
+      <!-- Breakdown por produto (só aparece na Tab 2) -->
+      <div class="card" id="breakdown-card" style="display:none;">
+        <h2>Custo por Produto (desembarcado)</h2>
+        <div id="breakdown-rows"></div>
+        <p class="note" style="margin-top:12px;">
+          Custo proporcional à participação de cada produto no FOB total do pedido.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>Indicadores</h2>
+
+        <div class="summary-grid">
+          <div class="sbox">
+            <div class="sl">Custo / metro</div>
+            <div class="sv" id="r_por_metro">—</div>
+          </div>
+          <div class="sbox">
+            <div class="sl">Carga trib.</div>
+            <div class="sv" id="r_carga">—</div>
+          </div>
+          <div class="sbox">
+            <div class="sl">Imposto / produto</div>
+            <div class="sv" id="r_ratio">—</div>
+          </div>
+        </div>
+
+        <div class="conjunto-block">
+          <div class="cb-title">Conjunto completo (sutiã + calcinha)</div>
+          <div class="cb-row">
+            <span class="cb-label">Conjuntos no lote</span>
+            <span class="cb-value" id="r_conjuntos">—</span>
+          </div>
+          <div class="cb-row">
+            <span class="cb-label">Custo de tecido por conjunto</span>
+            <span class="cb-value" id="r_por_conjunto">—</span>
+          </div>
+          <div class="cb-row">
+            <span class="cb-label">Custo por kg de tecido</span>
+            <span class="cb-value" id="r_por_kg">—</span>
+          </div>
+        </div>
+
+        <div class="warning">
+          <strong>Simples Nacional — atenção à precificação:</strong><br>
+          O custo por conjunto já inclui todos os impostos de importação sem recuperação de crédito. Certifique-se de que seu preço de venda cobre esse custo + insumos adicionais (elástico, bojo, aviamentos) + DAS + margem de lucro.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    /* ── Utilitários ── */
+    const fmt    = v => 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmtU   = v => 'U$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmtPct = v => v.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%';
+    const fmtN   = (v, dec=2) => v.toLocaleString('pt-BR', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    const set    = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    const get    = id => parseFloat(document.getElementById(id).value) || 0;
+
+    const METROS_POR_KG = 47;
+
+    /* ── Estado das abas ── */
+    let activeTab = 1;
+
+    function switchTab(n) {
+      activeTab = n;
+      document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i + 1 === n));
+      document.getElementById('tab1-content').style.display = n === 1 ? '' : 'none';
+      document.getElementById('tab2-content').style.display = n === 2 ? '' : 'none';
+      document.getElementById('breakdown-card').style.display = n === 2 ? '' : 'none';
+      calc();
+    }
+
+    /* ── Produtos (Tab 2) ── */
+    let produtos = [
+      { desc: 'Tecido bordado floral', metros: 300, custo: 1.00 },
+      { desc: 'Tecido rendado premium', metros: 200, custo: 1.30 },
+    ];
+
+    function renderTabela() {
+      const tbody = document.getElementById('sim-tbody');
+      tbody.innerHTML = '';
+
+      produtos.forEach((p, i) => {
+        const fob  = p.metros * p.custo;
+        const peso = p.metros / METROS_POR_KG;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><input type="text"   value="${p.desc}"   placeholder="Nome do produto" oninput="updateProduto(${i},'desc',this.value)"></td>
+          <td><input type="number" value="${p.metros}" min="0" step="10"  oninput="updateProduto(${i},'metros',this.value)" style="width:72px;text-align:right"></td>
+          <td><input type="text"   inputmode="decimal" value="${p.custo.toString().replace('.',',')}" placeholder="0,00" oninput="updateProduto(${i},'custo',this.value)" style="width:72px"></td>
+          <td class="calc-cell">U$ ${fmtN(fob)}</td>
+          <td class="calc-cell gray">${fmtN(peso)} kg</td>
+          <td><button class="btn-remove" onclick="removeProduto(${i})" title="Remover">×</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Totais da tabela
+      const totMetros = produtos.reduce((s, p) => s + (parseFloat(p.metros) || 0), 0);
+      const totFob    = produtos.reduce((s, p) => s + (parseFloat(p.metros) || 0) * (parseFloat(p.custo) || 0), 0);
+      const totPeso   = totMetros / METROS_POR_KG;
+
+      set('sim-total-metros', fmtN(totMetros, 0) + ' m');
+      set('sim-total-fob',    'U$ ' + fmtN(totFob));
+      set('sim-total-peso',   fmtN(totPeso, 2) + ' kg');
+    }
+
+    function updateProduto(i, campo, val) {
+      if (campo === 'metros') {
+        produtos[i][campo] = parseFloat(val) || 0;
+        renderTabela();
+      } else if (campo === 'custo') {
+        // aceita vírgula ou ponto como decimal
+        produtos[i][campo] = parseFloat(val.replace(',', '.')) || 0;
+        // não re-renderiza a tabela para não interromper a digitação
+      } else {
+        produtos[i][campo] = val;
+        // não re-renderiza para não perder o foco do campo de texto
+      }
+      calc();
+    }
+
+    function addProduto() {
+      produtos.push({ desc: '', metros: 0, custo: 0 });
+      renderTabela();
+      calc();
+    }
+
+    function removeProduto(i) {
+      if (produtos.length === 1) return;
+      produtos.splice(i, 1);
+      renderTabela();
+      calc();
+    }
+
+    /* ── Cálculo principal ── */
+    function calc() {
+      const frete_kg        = get('frete_kg');
+      const seguro_pct      = get('seguro');
+      const cambio          = get('cambio');
+      const ii_pct          = get('ii');
+      const ipi_pct         = get('ipi');
+      const pis_pct         = get('pis');
+      const cofins_pct      = get('cofins');
+      const icms_pct        = get('icms');
+      const despachante     = get('despachante');
+      const siscomex        = get('siscomex');
+      const forwarder       = get('forwarder');
+      const frete_interno   = get('frete_interno');
+      const outros          = get('outros');
+      const metros_conjunto = get('metros_conjunto');
+
+      let fob_total, metros_total;
+
+      if (activeTab === 1) {
+        const custo_metro = get('custo_metro');
+        metros_total = get('metros_single');
+        fob_total    = custo_metro * metros_total;
+
+        // Atualizar campos auto do Tab 1
+        document.getElementById('c_fob').textContent  = fmtN(fob_total);
+        document.getElementById('c_peso').textContent = fmtN(metros_total / METROS_POR_KG);
+      } else {
+        metros_total = produtos.reduce((s, p) => s + (parseFloat(p.metros) || 0), 0);
+        fob_total    = produtos.reduce((s, p) => s + (parseFloat(p.metros) || 0) * (parseFloat(p.custo) || 0), 0);
+      }
+
+      const peso = metros_total / METROS_POR_KG;
+
+      // CIF
+      const frete_usd  = frete_kg * peso;
+      const seguro_usd = fob_total * (seguro_pct / 100);
+      const cif_usd    = fob_total + frete_usd + seguro_usd;
+      const cif_brl    = cif_usd * cambio;
+
+      // Impostos
+      const ii_val     = cif_brl * (ii_pct / 100);
+      const ipi_val    = (cif_brl + ii_val) * (ipi_pct / 100);
+      const base_pc    = cif_brl + ii_val + ipi_val;
+      const pis_val    = base_pc * (pis_pct / 100);
+      const cofins_val = base_pc * (cofins_pct / 100);
+      const base_icms  = (cif_brl + ii_val + ipi_val + pis_val + cofins_val) / (1 - icms_pct / 100);
+      const icms_val   = base_icms * (icms_pct / 100);
+      const total_imp  = ii_val + ipi_val + pis_val + cofins_val + icms_val;
+
+      // Operacional
+      const total_op  = despachante + siscomex + forwarder + frete_interno + outros;
+
+      // Total
+      const prod_brl  = fob_total * cambio;
+      const frete_brl = (frete_usd + seguro_usd) * cambio;
+      const total     = cif_brl + total_imp + total_op;
+
+      // Por metro / conjunto
+      const por_metro    = metros_total > 0 ? total / metros_total : 0;
+      const por_kg       = peso > 0 ? total / peso : 0;
+      const por_conjunto = por_metro * metros_conjunto;
+      const conjuntos    = metros_conjunto > 0 ? Math.floor(metros_total / metros_conjunto) : 0;
+      const carga_pct    = cif_brl > 0 ? (total_imp / cif_brl) * 100 : 0;
+      const ratio_pct    = prod_brl > 0 ? (total_imp / prod_brl) * 100 : 0;
+
+      // Setar resultados
+      set('r_metros',          fmtN(metros_total, 0) + ' m');
+      set('r_fob',             fmtU(fob_total));
+      set('r_peso',            fmtN(peso, 2) + ' kg');
+      set('r_frete',           fmtU(frete_usd));
+      set('r_seguro',          fmtU(seguro_usd));
+      set('r_cif_usd',         fmtU(cif_usd));
+      set('r_cif_brl',         fmt(cif_brl));
+      set('r_ii',              fmt(ii_val));
+      set('r_ipi',             fmt(ipi_val));
+      set('r_pis',             fmt(pis_val));
+      set('r_cofins',          fmt(cofins_val));
+      set('r_icms',            fmt(icms_val));
+      set('r_impostos_total',  fmt(total_imp));
+      set('r_prod_brl',        fmt(prod_brl));
+      set('r_frete_brl',       fmt(frete_brl));
+      set('r_impostos2',       fmt(total_imp));
+      set('r_operacional',     fmt(total_op));
+      set('r_total',           fmt(total));
+      set('r_por_metro',       fmt(por_metro));
+      set('r_por_kg',          fmt(por_kg));
+      set('r_carga',           fmtPct(carga_pct));
+      set('r_ratio',           fmtPct(ratio_pct));
+      set('r_conjuntos',       conjuntos.toLocaleString('pt-BR') + ' un');
+      set('r_por_conjunto',    fmt(por_conjunto));
+
+      // Breakdown por produto (Tab 2)
+      if (activeTab === 2 && fob_total > 0) {
+        const div = document.getElementById('breakdown-rows');
+        div.innerHTML = '';
+        produtos.forEach(p => {
+          const metros_p = parseFloat(p.metros) || 0;
+          const fob_p    = metros_p * (parseFloat(p.custo) || 0);
+          const proporcao = fob_p / fob_total;
+          const custo_p  = total * proporcao;
+          const por_m_p  = metros_p > 0 ? custo_p / metros_p : 0;
+          const conj_p   = metros_conjunto > 0 ? Math.floor(metros_p / metros_conjunto) : 0;
+
+          if (metros_p === 0 && fob_p === 0) return;
+
+          const row = document.createElement('div');
+          row.style.cssText = 'padding:10px 0;border-bottom:1px solid #f3f4f6;';
+          row.innerHTML = `
+            <div style="font-size:13px;font-weight:600;color:#1a1a2e;margin-bottom:6px">
+              ${p.desc || 'Produto sem nome'} <span style="font-weight:400;color:#9ca3af">(${fmtN(metros_p,0)} m)</span>
+            </div>
+            <div style="display:flex;gap:20px;flex-wrap:wrap">
+              <div style="font-size:12px;color:#6b7280">Custo total <strong style="color:#1a1a2e">${fmt(custo_p)}</strong></div>
+              <div style="font-size:12px;color:#6b7280">Por metro <strong style="color:#4f46e5">${fmt(por_m_p)}</strong></div>
+              <div style="font-size:12px;color:#6b7280">Por conjunto <strong style="color:#15803d">${fmt(por_m_p * metros_conjunto)}</strong></div>
+              <div style="font-size:12px;color:#6b7280">Conjuntos <strong style="color:#1a1a2e">${conj_p} un</strong></div>
+            </div>
+          `;
+          div.appendChild(row);
+        });
+      }
+    }
+
+    /* ── Init ── */
+    renderTabela();
+    calc();
+  </script>
+
+</body>
+</html>
