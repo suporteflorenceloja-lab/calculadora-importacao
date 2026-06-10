@@ -335,6 +335,63 @@
 
     .left-col { display: flex; flex-direction: column; gap: 16px; }
     .right-col { display: flex; flex-direction: column; gap: 16px; }
+
+    /* Comparativo */
+    .comp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .comp-col { padding: 14px; }
+    .comp-col.courier { background: #fff7ed; border-right: 1.5px solid #e5e7eb; }
+    .comp-col.formal  { background: #f0fdf4; }
+
+    .comp-col-title {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 12px; padding-bottom: 8px;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .comp-col.courier .comp-col-title { color: #92400e; }
+    .comp-col.formal  .comp-col-title { color: #15803d; }
+
+    .comp-row {
+      display: flex; justify-content: space-between;
+      font-size: 12px; margin-bottom: 6px;
+    }
+
+    .comp-row .cl { color: #6b7280; }
+    .comp-row .cv { font-weight: 600; color: #1a1a2e; }
+
+    .comp-row.sub .cv { color: #dc2626; }
+    .comp-row.sub-green .cv { color: #15803d; }
+
+    .comp-total-row {
+      display: flex; justify-content: space-between;
+      margin-top: 10px; padding-top: 8px;
+      border-top: 1.5px solid rgba(0,0,0,0.1);
+    }
+
+    .comp-total-row .cl { font-size: 12px; font-weight: 700; color: #374151; }
+    .comp-col.courier .comp-total-row .cv { font-size: 15px; font-weight: 800; color: #b45309; }
+    .comp-col.formal  .comp-total-row .cv { font-size: 15px; font-weight: 800; color: #15803d; }
+
+    .economia-box {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      border-radius: 10px;
+      padding: 16px;
+      color: #fff;
+      text-align: center;
+    }
+
+    .economia-box .ec-label { font-size: 11px; font-weight: 600; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .economia-box .ec-value { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+    .economia-box .ec-sub   { font-size: 12px; opacity: 0.75; }
   </style>
 </head>
 <body>
@@ -361,7 +418,7 @@
           <p class="section-label">Você informa</p>
           <div class="field">
             <label>Custo por metro</label>
-            <input type="number" id="custo_metro" value="65" step="0.5" oninput="calc()">
+            <input type="number" id="custo_metro" value="1.3" step="0.1" oninput="calc()">
             <span class="unit">U$/m</span>
           </div>
           <div class="field">
@@ -513,6 +570,36 @@
         <p class="note">Inclui sutiã + calcinha. Altere conforme seu molde específico.</p>
       </div>
 
+      <div class="card">
+        <h2>Comparativo — Courier (Remessa Expressa)</h2>
+        <p class="note" style="margin-bottom:14px;">Parâmetros do cenário courier para comparar com importação formal.</p>
+        <div class="field">
+          <label>Frete courier (por kg)</label>
+          <input type="number" id="c_frete_kg" value="35" step="1" oninput="calc()">
+          <span class="unit">U$/kg</span>
+        </div>
+        <div class="field">
+          <label>II flat (remessa expressa)</label>
+          <input type="number" id="c_ii_flat" value="60" step="1" oninput="calc()">
+          <span class="unit">%</span>
+        </div>
+        <div class="field">
+          <label>Taxa administrativa courier</label>
+          <input type="number" id="c_taxa_adm" value="85" step="5" oninput="calc()">
+          <span class="unit">R$</span>
+        </div>
+        <div class="field">
+          <label>Reembolso aeroporto (por kg)</label>
+          <input type="number" id="c_reembolso_aero" value="3.58" step="0.1" oninput="calc()">
+          <span class="unit">R$/kg</span>
+        </div>
+        <div class="field">
+          <label>Reembolso despesas (SERASA etc)</label>
+          <input type="number" id="c_reembolso_desp" value="3.41" step="0.1" oninput="calc()">
+          <span class="unit">R$</span>
+        </div>
+      </div>
+
     </div>
 
     <!-- ═══════════════ COLUNA DIREITA: Resultados ═══════════════ -->
@@ -651,6 +738,44 @@
         <div class="warning">
           <strong>Simples Nacional — atenção à precificação:</strong><br>
           O custo por conjunto já inclui todos os impostos de importação sem recuperação de crédito. Certifique-se de que seu preço de venda cobre esse custo + insumos adicionais (elástico, bojo, aviamentos) + DAS + margem de lucro.
+        </div>
+      </div>
+
+      <!-- COMPARATIVO -->
+      <div class="card">
+        <h2>Comparativo — Courier vs. Importação Formal</h2>
+
+        <div class="comp-grid">
+          <div class="comp-col courier">
+            <div class="comp-col-title">Courier / Remessa Expressa</div>
+            <div class="comp-row"><span class="cl">Frete</span><span class="cv" id="cp_frete">—</span></div>
+            <div class="comp-row"><span class="cl">CIF</span><span class="cv" id="cp_cif">—</span></div>
+            <div class="comp-row sub"><span class="cl">II (60% flat)</span><span class="cv" id="cp_ii">—</span></div>
+            <div class="comp-row sub"><span class="cl">PIS/COFINS</span><span class="cv">R$ 0,00</span></div>
+            <div class="comp-row sub"><span class="cl">ICMS</span><span class="cv" id="cp_icms">—</span></div>
+            <div class="comp-row sub"><span class="cl">Taxas courier</span><span class="cv" id="cp_taxas">—</span></div>
+            <div class="comp-total-row"><span class="cl">Total</span><span class="cv" id="cp_total">—</span></div>
+            <div class="comp-row" style="margin-top:8px"><span class="cl">Por metro</span><span class="cv" id="cp_metro">—</span></div>
+            <div class="comp-row"><span class="cl">Por conjunto</span><span class="cv" id="cp_conjunto">—</span></div>
+          </div>
+          <div class="comp-col formal">
+            <div class="comp-col-title">Importação Formal (DI)</div>
+            <div class="comp-row"><span class="cl">Frete</span><span class="cv" id="cf_frete">—</span></div>
+            <div class="comp-row"><span class="cl">CIF</span><span class="cv" id="cf_cif">—</span></div>
+            <div class="comp-row sub-green"><span class="cl">II (26%)</span><span class="cv" id="cf_ii">—</span></div>
+            <div class="comp-row sub-green"><span class="cl">PIS/COFINS</span><span class="cv" id="cf_pc">—</span></div>
+            <div class="comp-row sub-green"><span class="cl">ICMS</span><span class="cv" id="cf_icms">—</span></div>
+            <div class="comp-row sub-green"><span class="cl">Operacional</span><span class="cv" id="cf_op">—</span></div>
+            <div class="comp-total-row"><span class="cl">Total</span><span class="cv" id="cf_total">—</span></div>
+            <div class="comp-row" style="margin-top:8px"><span class="cl">Por metro</span><span class="cv" id="cf_metro">—</span></div>
+            <div class="comp-row"><span class="cl">Por conjunto</span><span class="cv" id="cf_conjunto">—</span></div>
+          </div>
+        </div>
+
+        <div class="economia-box">
+          <div class="ec-label">Economia com importação formal</div>
+          <div class="ec-value" id="eco_valor">—</div>
+          <div class="ec-sub" id="eco_sub">—</div>
         </div>
       </div>
 
@@ -835,6 +960,51 @@
       set('r_ratio',           fmtPct(ratio_pct));
       set('r_conjuntos',       conjuntos.toLocaleString('pt-BR') + ' un');
       set('r_por_conjunto',    fmt(por_conjunto));
+
+      // ── Cálculo COURIER (remessa expressa) ──
+      const c_frete_kg      = get('c_frete_kg');
+      const c_ii_flat       = get('c_ii_flat');
+      const c_taxa_adm      = get('c_taxa_adm');
+      const c_reembolso_aero = get('c_reembolso_aero');
+      const c_reembolso_desp = get('c_reembolso_desp');
+
+      const c_frete_usd  = c_frete_kg * peso;
+      const c_seguro_usd = fob_total * (seguro_pct / 100);
+      const c_cif_usd    = fob_total + c_frete_usd + c_seguro_usd;
+      const c_cif_brl    = c_cif_usd * cambio;
+
+      const c_ii_val    = c_cif_brl * (c_ii_flat / 100);
+      // Courier: PIS/COFINS não cobrados separadamente (inclusos no II flat)
+      const c_base_icms = (c_cif_brl + c_ii_val) / (1 - icms_pct / 100);
+      const c_icms_val  = c_base_icms * (icms_pct / 100);
+      const c_taxas     = c_taxa_adm + (c_reembolso_aero * peso) + c_reembolso_desp;
+      const c_total     = c_cif_brl + c_ii_val + c_icms_val + c_taxas;
+      const c_por_metro    = metros_total > 0 ? c_total / metros_total : 0;
+      const c_por_conjunto = c_por_metro * metros_conjunto;
+      const economia       = c_total - total;
+      const eco_metro      = c_por_metro - por_metro;
+
+      set('cp_frete',    fmt(c_frete_usd * cambio));
+      set('cp_cif',      fmt(c_cif_brl));
+      set('cp_ii',       fmt(c_ii_val));
+      set('cp_icms',     fmt(c_icms_val));
+      set('cp_taxas',    fmt(c_taxas));
+      set('cp_total',    fmt(c_total));
+      set('cp_metro',    fmt(c_por_metro));
+      set('cp_conjunto', fmt(c_por_conjunto));
+
+      set('cf_frete',   fmt(frete_brl));
+      set('cf_cif',     fmt(cif_brl));
+      set('cf_ii',      fmt(ii_val));
+      set('cf_pc',      fmt(pis_val + cofins_val));
+      set('cf_icms',    fmt(icms_val));
+      set('cf_op',      fmt(total_op));
+      set('cf_total',   fmt(total));
+      set('cf_metro',   fmt(por_metro));
+      set('cf_conjunto', fmt(por_conjunto));
+
+      set('eco_valor', fmt(economia));
+      set('eco_sub',   `R$ ${fmtN(eco_metro)} por metro · R$ ${fmtN(eco_metro * metros_conjunto)} por conjunto`);
 
       // Breakdown por produto (Tab 2)
       if (activeTab === 2 && fob_total > 0) {
