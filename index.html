@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Importação — Florence Intimates</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      color: #1a1a2e;
+      padding: 24px;
+    }
+
+    h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .subtitle { font-size: 13px; color: #6b7280; margin-bottom: 24px; }
+
+    .layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+    .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 16px; }
+    .card:last-child { margin-bottom: 0; }
+
+    .card h2 {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; color: #6b7280;
+      margin-bottom: 14px; padding-bottom: 10px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .field { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 8px; }
+    .field label { font-size: 13px; color: #374151; flex: 1; }
+    .field .unit { font-size: 11px; color: #9ca3af; width: 40px; text-align: right; flex-shrink: 0; }
+    .field input {
+      width: 100px; padding: 6px 10px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+      font-size: 14px; font-weight: 500; text-align: right; color: #1a1a2e;
+      -moz-appearance: textfield; flex-shrink: 0;
+    }
+    .field input::-webkit-outer-spin-button,
+    .field input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .field input:focus { outline: none; border-color: #6366f1; }
+
+    .fixed-val {
+      width: 100px; padding: 6px 10px; border: 1.5px solid #f3f4f6; border-radius: 8px;
+      font-size: 13px; font-weight: 600; text-align: right; color: #6b7280;
+      background: #fafafa; flex-shrink: 0;
+    }
+
+    .divider { border: none; border-top: 1px dashed #e5e7eb; margin: 12px 0; }
+
+    .tag { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
+    .tag.yellow { background: #fef3c7; color: #92400e; }
+    .tag.red    { background: #fee2e2; color: #991b1b; }
+
+    /* Tabela comparativa */
+    .comp-table { width: 100%; border-collapse: collapse; }
+
+    .comp-table th {
+      padding: 14px 16px; text-align: center;
+      font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+    }
+
+    .comp-table th.courier-h {
+      background: #fff7ed; color: #92400e;
+      border-radius: 10px 0 0 0;
+    }
+
+    .comp-table th.maritimo-h {
+      background: #eff6ff; color: #1e40af;
+      border-radius: 0 10px 0 0;
+    }
+
+    .comp-table th.lbl-h {
+      background: #f9fafb; color: #9ca3af;
+      font-size: 10px; text-align: left;
+      width: 38%;
+    }
+
+    .comp-table td {
+      padding: 9px 16px; font-size: 13px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .comp-table td.lbl {
+      color: #6b7280; background: #fafafa;
+      font-size: 12px;
+    }
+
+    .comp-table td.courier-v {
+      background: #fffbf7; text-align: right;
+      font-weight: 600; color: #1a1a2e;
+    }
+
+    .comp-table td.maritimo-v {
+      background: #f5f9ff; text-align: right;
+      font-weight: 600; color: #1a1a2e;
+    }
+
+    .comp-table td.imp-c { background: #fff7ed; text-align: right; font-weight: 600; color: #b45309; }
+    .comp-table td.imp-m { background: #eff6ff; text-align: right; font-weight: 600; color: #1e40af; }
+
+    .comp-table td.na { background: #f9fafb; text-align: center; color: #d1d5db; font-size: 12px; }
+
+    .comp-table tr.total-row td { border-top: 2px solid #e5e7eb; border-bottom: 2px solid #e5e7eb; }
+    .comp-table tr.total-row td.lbl { font-weight: 700; color: #374151; font-size: 13px; }
+    .comp-table tr.total-row td.courier-v { background: #fff7ed; color: #b45309; font-size: 16px; font-weight: 800; }
+    .comp-table tr.total-row td.maritimo-v { background: #eff6ff; color: #1e40af; font-size: 16px; font-weight: 800; }
+
+    .comp-table tr.unit-row td { background: #fff; }
+    .comp-table tr.unit-row td.lbl { color: #9ca3af; font-size: 11px; }
+    .comp-table tr.unit-row td.courier-v { color: #b45309; font-size: 14px; }
+    .comp-table tr.unit-row td.maritimo-v { color: #1e40af; font-size: 14px; }
+
+    .comp-table tr.conj-row td.courier-v,
+    .comp-table tr.conj-row td.maritimo-v { font-size: 13px; color: #374151; }
+
+    .section-sep td { padding: 6px 16px; background: #f3f4f6 !important; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #9ca3af !important; }
+
+    /* Economia */
+    .eco-card {
+      background: linear-gradient(135deg, #1d4ed8, #4f46e5);
+      border-radius: 12px; padding: 20px; color: #fff;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 20px; margin-top: 16px;
+    }
+
+    .eco-card .eco-left { flex: 1; }
+    .eco-card .eco-label { font-size: 11px; font-weight: 600; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+    .eco-card .eco-value { font-size: 30px; font-weight: 800; }
+    .eco-card .eco-sub { font-size: 12px; opacity: 0.75; margin-top: 4px; line-height: 1.5; }
+
+    .eco-card .eco-right { display: flex; gap: 20px; }
+    .eco-item { text-align: center; background: rgba(255,255,255,0.12); border-radius: 10px; padding: 12px 16px; }
+    .eco-item .ei-label { font-size: 10px; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+    .eco-item .ei-value { font-size: 17px; font-weight: 700; }
+
+    .note { font-size: 11px; color: #9ca3af; margin-top: 10px; line-height: 1.5; padding: 10px; background: #fafafa; border-radius: 8px; border-left: 3px solid #e5e7eb; }
+    .note strong { color: #6b7280; }
+  </style>
+</head>
+<body>
+
+  <h1>Calculadora de Importação China → Brasil</h1>
+  <p class="subtitle">Florence Intimates · Simples Nacional · SC (ICMS 17%)</p>
+
+  <div class="layout">
+
+    <!-- ═══ INPUTS ═══ -->
+    <div>
+
+      <div class="card">
+        <h2>Parâmetro Principal</h2>
+        <div class="field">
+          <label><strong>Custo por metro</strong></label>
+          <input type="number" id="custo_metro" value="1.3" step="0.05" oninput="calc()">
+          <span class="unit">U$/m</span>
+        </div>
+        <div class="field">
+          <label>Câmbio (R$/U$)</label>
+          <input type="number" id="cambio" value="5.10" step="0.05" oninput="calc()">
+          <span class="unit">R$</span>
+        </div>
+        <div class="field">
+          <label>Metros por conjunto</label>
+          <input type="number" id="metros_conj" value="1.5" step="0.1" oninput="calc()">
+          <span class="unit">m</span>
+        </div>
+        <div class="field">
+          <label>Taxa de seguro</label>
+          <input type="number" id="seguro" value="0.4" step="0.1" oninput="calc()">
+          <span class="unit">%</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Courier FedEx — fixo</h2>
+        <div class="field">
+          <label>Metros</label>
+          <div class="fixed-val">914</div>
+          <span class="unit">m</span>
+        </div>
+        <div class="field">
+          <label>Peso</label>
+          <div class="fixed-val">30</div>
+          <span class="unit">kg</span>
+        </div>
+        <div class="field">
+          <label>Frete FedEx</label>
+          <input type="number" id="c_frete" value="410" step="10" oninput="calc()">
+          <span class="unit">U$</span>
+        </div>
+        <hr class="divider">
+        <div class="field">
+          <label>II flat <span class="tag yellow">sem RADAR</span></label>
+          <input type="number" id="c_ii" value="60" step="1" oninput="calc()">
+          <span class="unit">%</span>
+        </div>
+        <div class="field">
+          <label>ICMS/SC</label>
+          <input type="number" id="c_icms" value="17" step="0.5" oninput="calc()">
+          <span class="unit">%</span>
+        </div>
+        <hr class="divider">
+        <div class="field">
+          <label>Taxa administrativa</label>
+          <input type="number" id="c_taxa_adm" value="85" step="5" oninput="calc()">
+          <span class="unit">R$</span>
+        </div>
+        <div class="field">
+          <label>Reembolso aeroporto</label>
+          <input type="number" id="c_aero" value="3.58" step="0.1" oninput="calc()">
+          <span class="unit">R$/kg</span>
+        </div>
+        <div class="field">
+          <label>Reembolso despesas</label>
+          <input type="number" id="c_desp" value="3.41" step="0.1" oninput="calc()">
+          <span class="unit">R$</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Marítimo LCL — fixo</h2>
+        <div class="field">
+          <label>Metros</label>
+          <div class="fixed-val">5.418</div>
+          <span class="unit">m</span>
+        </div>
+        <div class="field">
+          <label>Peso</label>
+          <div class="fixed-val">167</div>
+          <span class="unit">kg</span>
+        </div>
+        <div class="field">
+          <label>Frete marítimo</label>
+          <input type="number" id="m_frete" value="1300" step="50" oninput="calc()">
+          <span class="unit">U$</span>
+        </div>
+        <hr class="divider">
+        <div class="field">
+          <label>II <span class="tag yellow">com RADAR</span></label>
+          <input type="number" id="m_ii" value="26" step="1" oninput="calc()">
+          <span class="unit">%</span>
+        </div>
+        <div class="field">
+          <label>PIS <span class="tag red">sem crédito SN</span></label>
+          <input type="number" id="m_pis" value="2.1" step="0.1" oninput="calc()">
+          <span class="unit">%</span>
+        </div>
+        <div class="field">
+          <label>COFINS <span class="tag red">sem crédito SN</span></label>
+          <input type="number" id="m_cofins" value="10.65" step="0.05" oninput="calc()">
+          <span class="unit">%</span>
+        </div>
+        <div class="field">
+          <label>ICMS/SC <span class="tag red">sem crédito SN</span></label>
+          <input type="number" id="m_icms" value="17" step="0.5" oninput="calc()">
+          <span class="unit">%</span>
+        </div>
+        <hr class="divider">
+        <div class="field">
+          <label>Despachante</label>
+          <input type="number" id="m_despachante" value="700" step="50" oninput="calc()">
+          <span class="unit">R$</span>
+        </div>
+        <div class="field">
+          <label>Siscomex</label>
+          <input type="number" id="m_siscomex" value="200" step="10" oninput="calc()">
+          <span class="unit">R$</span>
+        </div>
+        <div class="field">
+          <label>Agente de carga</label>
+          <input type="number" id="m_forwarder" value="400" step="50" oninput="calc()">
+          <span class="unit">R$</span>
+        </div>
+        <div class="field">
+          <label>Frete interno</label>
+          <input type="number" id="m_frete_int" value="150" step="10" oninput="calc()">
+          <span class="unit">R$</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═══ COMPARATIVO ═══ -->
+    <div>
+
+      <div class="card" style="padding:0;overflow:hidden;">
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th class="lbl-h">Cenário</th>
+              <th class="courier-h">Courier FedEx<br><span style="font-size:10px;font-weight:400;opacity:0.8;">Sem RADAR · 30 kg</span></th>
+              <th class="maritimo-h">Marítimo LCL<br><span style="font-size:10px;font-weight:400;opacity:0.8;">Com RADAR · 167 kg</span></th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr class="section-sep">
+              <td colspan="3">Volume e produto</td>
+            </tr>
+            <tr>
+              <td class="lbl">Metros</td>
+              <td class="courier-v">914 m</td>
+              <td class="maritimo-v">5.418 m</td>
+            </tr>
+            <tr>
+              <td class="lbl">Custo produto (FOB)</td>
+              <td class="courier-v" id="c_fob">—</td>
+              <td class="maritimo-v" id="m_fob">—</td>
+            </tr>
+            <tr>
+              <td class="lbl">Frete</td>
+              <td class="courier-v" id="c_frete_brl">—</td>
+              <td class="maritimo-v" id="m_frete_brl">—</td>
+            </tr>
+            <tr>
+              <td class="lbl">Seguro</td>
+              <td class="courier-v" id="c_seg_brl">—</td>
+              <td class="maritimo-v" id="m_seg_brl">—</td>
+            </tr>
+            <tr>
+              <td class="lbl"><strong>CIF</strong></td>
+              <td class="courier-v" id="c_cif">—</td>
+              <td class="maritimo-v" id="m_cif">—</td>
+            </tr>
+
+            <tr class="section-sep">
+              <td colspan="3">Impostos</td>
+            </tr>
+            <tr>
+              <td class="lbl">II</td>
+              <td class="imp-c" id="c_ii_val">—</td>
+              <td class="imp-m" id="m_ii_val">—</td>
+            </tr>
+            <tr>
+              <td class="lbl">PIS / COFINS</td>
+              <td class="na">não cobrado</td>
+              <td class="imp-m" id="m_pc_val">—</td>
+            </tr>
+            <tr>
+              <td class="lbl">ICMS/SC</td>
+              <td class="imp-c" id="c_icms_val">—</td>
+              <td class="imp-m" id="m_icms_val">—</td>
+            </tr>
+            <tr>
+              <td class="lbl"><strong>Total impostos</strong></td>
+              <td class="imp-c" id="c_imp_total">—</td>
+              <td class="imp-m" id="m_imp_total">—</td>
+            </tr>
+
+            <tr class="section-sep">
+              <td colspan="3">Taxas e operacional</td>
+            </tr>
+            <tr>
+              <td class="lbl">Taxas courier</td>
+              <td class="courier-v" id="c_taxas_val">—</td>
+              <td class="na">—</td>
+            </tr>
+            <tr>
+              <td class="lbl">Operacional (formal)</td>
+              <td class="na">—</td>
+              <td class="maritimo-v" id="m_op_val">—</td>
+            </tr>
+
+            <tr class="total-row">
+              <td class="lbl">TOTAL DESEMBARCADO</td>
+              <td class="courier-v" id="c_total">—</td>
+              <td class="maritimo-v" id="m_total">—</td>
+            </tr>
+
+            <tr class="section-sep">
+              <td colspan="3">Custo unitário</td>
+            </tr>
+            <tr class="unit-row">
+              <td class="lbl">Por metro</td>
+              <td class="courier-v" id="c_por_metro">—</td>
+              <td class="maritimo-v" id="m_por_metro">—</td>
+            </tr>
+            <tr class="unit-row">
+              <td class="lbl">Por conjunto (1,5 m)</td>
+              <td class="courier-v" id="c_por_conj">—</td>
+              <td class="maritimo-v" id="m_por_conj">—</td>
+            </tr>
+            <tr class="conj-row">
+              <td class="lbl">Conjuntos no lote</td>
+              <td class="courier-v" id="c_conjuntos">—</td>
+              <td class="maritimo-v" id="m_conjuntos">—</td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ECONOMIA -->
+      <div class="eco-card">
+        <div class="eco-left">
+          <div class="eco-label">Economia — Marítimo vs. Courier</div>
+          <div class="eco-value" id="eco_total">—</div>
+          <div class="eco-sub">em favor do Marítimo Formal no total do lote</div>
+        </div>
+        <div class="eco-right">
+          <div class="eco-item">
+            <div class="ei-label">Por metro</div>
+            <div class="ei-value" id="eco_metro">—</div>
+          </div>
+          <div class="eco-item">
+            <div class="ei-label">Por conjunto</div>
+            <div class="ei-value" id="eco_conj">—</div>
+          </div>
+        </div>
+      </div>
+
+      <p class="note" style="margin-top:16px;">
+        <strong>Simples Nacional:</strong> PIS, COFINS e ICMS não geram crédito fiscal — são 100% custo do produto. Os campos editáveis à esquerda permitem simular variações de preço, câmbio e custos operacionais.
+      </p>
+
+    </div>
+  </div>
+
+  <script>
+    const fmt  = v => 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmtN = (v, d=2) => v.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+    const set  = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    const get  = id => parseFloat(document.getElementById(id).value) || 0;
+
+    // Cenários fixos
+    const C_METROS = 914;
+    const C_PESO   = 30;
+    const M_METROS = 5418;
+    const M_PESO   = 167;
+
+    function calcImpostos(cif_brl, ii_pct, pis_pct, cofins_pct, icms_pct) {
+      const ii       = cif_brl * (ii_pct / 100);
+      const base_pc  = cif_brl + ii;
+      const pis      = base_pc * (pis_pct / 100);
+      const cofins   = base_pc * (cofins_pct / 100);
+      const base_icms = (cif_brl + ii + pis + cofins) / (1 - icms_pct / 100);
+      const icms     = base_icms * (icms_pct / 100);
+      return { ii, pis, cofins, icms, total: ii + pis + cofins + icms };
+    }
+
+    function calc() {
+      const custo_metro = get('custo_metro');
+      const cambio      = get('cambio');
+      const metros_conj = get('metros_conj');
+      const seguro_pct  = get('seguro');
+
+      // ── COURIER ──
+      const c_frete_usd = get('c_frete');
+      const c_ii_pct    = get('c_ii');
+      const c_icms_pct  = get('c_icms');
+      const c_taxa_adm  = get('c_taxa_adm');
+      const c_aero      = get('c_aero');
+      const c_desp      = get('c_desp');
+
+      const c_fob_usd   = C_METROS * custo_metro;
+      const c_seg_usd   = c_fob_usd * (seguro_pct / 100);
+      const c_cif_usd   = c_fob_usd + c_frete_usd + c_seg_usd;
+      const c_cif_brl   = c_cif_usd * cambio;
+      const c_ii_val    = c_cif_brl * (c_ii_pct / 100);
+      const c_base_icms = (c_cif_brl + c_ii_val) / (1 - c_icms_pct / 100);
+      const c_icms_val  = c_base_icms * (c_icms_pct / 100);
+      const c_imp       = c_ii_val + c_icms_val;
+      const c_taxas     = c_taxa_adm + (c_aero * C_PESO) + c_desp;
+      const c_total     = c_cif_brl + c_imp + c_taxas;
+      const c_por_metro = C_METROS > 0 ? c_total / C_METROS : 0;
+      const c_por_conj  = c_por_metro * metros_conj;
+      const c_conjuntos = metros_conj > 0 ? Math.floor(C_METROS / metros_conj) : 0;
+
+      set('c_fob',       fmt(c_fob_usd * cambio) + ` (U$ ${fmtN(c_fob_usd)})`);
+      set('c_frete_brl', fmt(c_frete_usd * cambio) + ` (U$ ${fmtN(c_frete_usd)})`);
+      set('c_seg_brl',   fmt(c_seg_usd * cambio));
+      set('c_cif',       fmt(c_cif_brl));
+      set('c_ii_val',    fmt(c_ii_val) + ` (${c_ii_pct}%)`);
+      set('c_icms_val',  fmt(c_icms_val));
+      set('c_imp_total', fmt(c_imp));
+      set('c_taxas_val', fmt(c_taxas));
+      set('c_total',     fmt(c_total));
+      set('c_por_metro', fmt(c_por_metro));
+      set('c_por_conj',  fmt(c_por_conj));
+      set('c_conjuntos', c_conjuntos.toLocaleString('pt-BR') + ' un');
+
+      // ── MARÍTIMO ──
+      const m_frete_usd = get('m_frete');
+      const m_ii_pct    = get('m_ii');
+      const m_pis_pct   = get('m_pis');
+      const m_cof_pct   = get('m_cofins');
+      const m_icms_pct  = get('m_icms');
+      const m_op        = get('m_despachante') + get('m_siscomex') + get('m_forwarder') + get('m_frete_int');
+
+      const m_fob_usd   = M_METROS * custo_metro;
+      const m_seg_usd   = m_fob_usd * (seguro_pct / 100);
+      const m_cif_usd   = m_fob_usd + m_frete_usd + m_seg_usd;
+      const m_cif_brl   = m_cif_usd * cambio;
+      const imp_m       = calcImpostos(m_cif_brl, m_ii_pct, m_pis_pct, m_cof_pct, m_icms_pct);
+      const m_total     = m_cif_brl + imp_m.total + m_op;
+      const m_por_metro = M_METROS > 0 ? m_total / M_METROS : 0;
+      const m_por_conj  = m_por_metro * metros_conj;
+      const m_conjuntos = metros_conj > 0 ? Math.floor(M_METROS / metros_conj) : 0;
+
+      set('m_fob',       fmt(m_fob_usd * cambio) + ` (U$ ${fmtN(m_fob_usd)})`);
+      set('m_frete_brl', fmt(m_frete_usd * cambio) + ` (U$ ${fmtN(m_frete_usd)})`);
+      set('m_seg_brl',   fmt(m_seg_usd * cambio));
+      set('m_cif',       fmt(m_cif_brl));
+      set('m_ii_val',    fmt(imp_m.ii) + ` (${m_ii_pct}%)`);
+      set('m_pc_val',    fmt(imp_m.pis + imp_m.cofins));
+      set('m_icms_val',  fmt(imp_m.icms));
+      set('m_imp_total', fmt(imp_m.total));
+      set('m_op_val',    fmt(m_op));
+      set('m_total',     fmt(m_total));
+      set('m_por_metro', fmt(m_por_metro));
+      set('m_por_conj',  fmt(m_por_conj));
+      set('m_conjuntos', m_conjuntos.toLocaleString('pt-BR') + ' un');
+
+      // Economia — normaliza por metro para comparação justa entre lotes diferentes
+      const eco_metro = c_por_metro - m_por_metro;
+      const eco_conj  = c_por_conj - m_por_conj;
+      // Economia no lote marítimo (maior)
+      const eco_total = eco_metro * M_METROS;
+
+      set('eco_total', fmt(eco_total));
+      set('eco_metro', fmt(eco_metro) + '/m');
+      set('eco_conj',  fmt(eco_conj));
+    }
+
+    calc();
+  </script>
+
+</body>
+</html>
