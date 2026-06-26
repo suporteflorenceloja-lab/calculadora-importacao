@@ -615,9 +615,11 @@
                 <th>FOB (U$)</th>
                 <th class="c-col">R$/m Courier</th>
                 <th class="c-col">R$/conj Courier</th>
+                <th class="c-col" style="background:#fef3c7;color:#92400e">Venda Courier</th>
                 <th class="c-col">Total Courier</th>
                 <th class="m-col">R$/m Marítimo</th>
                 <th class="m-col">R$/conj Marítimo</th>
+                <th class="m-col" style="background:#dbeafe;color:#1e40af">Venda Marítimo</th>
                 <th class="m-col">Total Marítimo</th>
               </tr>
             </thead>
@@ -642,6 +644,7 @@
     const set   = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
     const get   = id => parseFloat(document.getElementById(id).value) || 0;
     const METROS_POR_KG = 47;
+    const MARKUP = 6.25;
 
     // ── Cenários fixos (Tab 1) ──
     const C_METROS = 914,  C_PESO = 30;
@@ -910,9 +913,11 @@
           <td>U$ ${fmtN(r.fob)}</td>
           <td class="c-col">${fmt(c_pm_i)}/m</td>
           <td class="c-col">${fmt(c_pm_i * metros_conj)}</td>
+          <td class="c-col" style="font-weight:700">${fmt(c_pm_i * metros_conj * MARKUP)}</td>
           <td class="c-col">${fmt(c_total_i)}</td>
           <td class="m-col">${fmt(m_pm_i)}/m</td>
           <td class="m-col">${fmt(m_pm_i * metros_conj)}</td>
+          <td class="m-col" style="font-weight:700">${fmt(m_pm_i * metros_conj * MARKUP)}</td>
           <td class="m-col">${fmt(m_total_i)}</td>
         `;
         break_body.appendChild(tr);
@@ -925,9 +930,11 @@
           <td>U$ ${fmtN(bf_fob)}</td>
           <td class="c-col"><strong>${fmt(bf_c_total / bf_metros)}/m</strong></td>
           <td class="c-col"><strong>${fmt(bf_c_total / bf_metros * metros_conj)}</strong></td>
+          <td class="c-col" style="font-weight:800">${fmt(bf_c_total / bf_metros * metros_conj * MARKUP)}</td>
           <td class="c-col"><strong>${fmt(bf_c_total)}</strong></td>
           <td class="m-col"><strong>${fmt(bf_m_total / bf_metros)}/m</strong></td>
           <td class="m-col"><strong>${fmt(bf_m_total / bf_metros * metros_conj)}</strong></td>
+          <td class="m-col" style="font-weight:800">${fmt(bf_m_total / bf_metros * metros_conj * MARKUP)}</td>
           <td class="m-col"><strong>${fmt(bf_m_total)}</strong></td>
         </tr>
       `;
