@@ -798,7 +798,7 @@
         const peso   = metros / METROS_POR_KG;
         total_metros  += metros;
         total_fob_usd += fob;
-        rows.push({ nome: p.nome || `Produto ${i+1}`, metros, custo, fob, peso });
+        rows.push({ nome: p.nome || `Produto ${i+1}`, metros, custo, fob, peso, link: p.link || '' });
 
         // Atualiza células inline na tabela de produtos
         const sub_el  = document.getElementById(`sub_${i}`);
