@@ -244,9 +244,9 @@
           <span class="unit">U$</span>
         </div>
         <div class="field">
-          <label>Custo/kg courier <small style="color:#9ca3af">(para simulação)</small></label>
-          <div class="fixed-val" id="c_por_kg_disp">—</div>
-          <span class="unit">U$/kg</span>
+          <label>Taxa simulação <small style="color:#9ca3af">(U$/914m)</small></label>
+          <div class="fixed-val">410</div>
+          <span class="unit">U$</span>
         </div>
         <hr class="divider">
         <div class="field">
@@ -624,7 +624,7 @@
         </div>
 
         <p class="note" style="margin-top:12px;">
-          <strong>Frete courier escalado:</strong> baseado na cotação U$ <span id="note_c_rate">—</span>/kg (U$ 410 ÷ 30 kg). Marítimo com mínimo de U$ 1.300 para o 1m³ inicial, escala linearmente acima disso.
+          <strong>Frete courier escalado:</strong> U$ <span id="note_c_rate">—</span> a cada 914 m (proporcional ao volume do pedido). Marítimo com mínimo de U$ 1.300 para o 1m³ inicial, escala linearmente acima disso.
         </p>
 
       </div><!-- /tab2 -->
@@ -677,7 +677,7 @@
       const metros_conj = get('metros_conj');
       const seguro_pct  = get('seguro');
       const c_frete_usd = get('c_frete');
-      const c_por_kg    = c_frete_usd / 30;          // U$/kg para escalar na simulação
+      const c_frete_base = c_frete_usd;               // U$ por 914m (para escalar na simulação)
       const c_ii_pct    = get('c_ii');
       const c_icms_pct  = get('c_icms');
       const c_taxa_adm  = get('c_taxa_adm');
@@ -691,10 +691,7 @@
       const m_icms_pct  = get('m_icms');
       const m_op_fixo   = get('m_despachante') + get('m_siscomex') + get('m_forwarder') + get('m_frete_int');
 
-      // Atualiza display do custo/kg courier
-      const c_por_kg_el = document.getElementById('c_por_kg_disp');
-      if (c_por_kg_el) c_por_kg_el.textContent = fmtN(c_por_kg);
-      set('note_c_rate', fmtN(c_por_kg));
+      set('note_c_rate', fmtN(c_frete_base));
 
       // ────────────────── TAB 1 ──────────────────
       // Custo médio do pedido Tab 2 (ou padrão 1.30)
@@ -753,7 +750,7 @@
       set('eco_conj',  fmt(eco_pm * metros_conj));
 
       // ────────────────── TAB 2 ──────────────────
-      calcTab2(cambio, metros_conj, seguro_pct, c_por_kg, c_ii_pct, c_icms_pct, c_taxa_adm, c_aero, c_desp,
+      calcTab2(cambio, metros_conj, seguro_pct, c_frete_base, c_ii_pct, c_icms_pct, c_taxa_adm, c_aero, c_desp,
                m_frete_min, m_peso_min, m_ii_pct, m_pis_pct, m_cof_pct, m_icms_pct, m_op_fixo);
     }
 
@@ -767,7 +764,7 @@
       return total_metros > 0 ? total_fob / total_metros : 1.3;
     }
 
-    function calcTab2(cambio, metros_conj, seguro_pct, c_por_kg,
+    function calcTab2(cambio, metros_conj, seguro_pct, c_frete_base,
                       c_ii_pct, c_icms_pct, c_taxa_adm, c_aero, c_desp,
                       m_frete_min, m_peso_min, m_ii_pct, m_pis_pct, m_cof_pct, m_icms_pct, m_op_fixo) {
 
@@ -805,7 +802,7 @@
       if (total_metros === 0) return;
 
       // ── Courier para este pedido ──
-      const c_frete_usd  = c_por_kg * total_peso;
+      const c_frete_usd  = (total_metros / C_METROS) * c_frete_base;
       const c_seg_usd    = total_fob_usd * (seguro_pct / 100);
       const c_cif_brl    = (total_fob_usd + c_frete_usd + c_seg_usd) * cambio;
       const c_ii_val     = c_cif_brl * (c_ii_pct / 100);
